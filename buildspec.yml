@@ -1,8 +1,24 @@
-version: 0.2
+version: 0.3
+
 phases:
   install:
     runtime-versions:
       java: latest
+    commands:
+      - echo "Instalando dependencias necesarias..."
+      - apt-get update && apt-get install -y jq  # Asegura que jq esté disponible
+
+  pre_build:
+    commands:
+      - echo "Recuperando credenciales de GitHub desde AWS Secrets Manager..."
+      - export SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id dev/codebuild/github/credentials-rUXRo0 --query SecretString --output text)
+      - export GITHUB_USERNAME=$(echo $SECRET_JSON | jq -r '.GITHUB_USERNAME')
+      - export GITHUB_TOKEN=$(echo $SECRET_JSON | jq -r '.GITHUB_TOKEN')
+
+      - echo "Configurando credenciales de Git..."
+      - git config --global credential.helper '!f() { echo "username=$GITHUB_USERNAME"; echo "password=$GITHUB_TOKEN"; }; f'
+
   build:
     commands:
+      - echo "Ejecutando análisis con SonarCloud..."
       - mvn verify sonar:sonar -Dsonar.projectKey=devsecops01 -Dsonar.organization=testdev-org -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=fcdb7318a9607eea8b5a637110f4903211907ae6
