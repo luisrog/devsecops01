@@ -1,8 +1,16 @@
 version: 0.2
+env:
+    secrets-manager:
+      TOKEN: dev/codebuild/sonarqube/credentials:tokenForSonar
 phases:
   install:
     runtime-versions:
       java: latest
   build:
     commands:
-      - mvn verify sonar:sonar -Dsonar.projectKey=javaprojectaws -Dsonar.organization=javaprojectaws -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=37c7ca1a4f2fc567717203d6ffdae0440c64ca92 
+      - mvn verify sonar:sonar -Dsonar.projectKey=devsecops01 -Dsonar.organization=devsecops01 -Dsonar.host.url=http://3.139.145.182:9000 -Dsonar.token=sqp_5889929b1584b9333ba1e708c5d1cf64919c71e8 
+      - sleep 5
+      - |- 
+        quality_status=$(curl -s -u $TOKEN: http://3.139.145.182:9000/api/qualitygates/project_status?projectKey=devsecops01 | jq -r '.projectStatus.status')
+        echo "SonarQube analysistatus is $quality_status"; 
+        if [ $quality_status = "ERROR" ] ; then exit 1;fi
