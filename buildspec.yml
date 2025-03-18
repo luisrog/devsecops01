@@ -38,7 +38,7 @@ phases:
         tar -xvf zap.tar.gz
         mv ZAP_2.16.0 zap
         chmod +x zap/zap.sh
-        zap/zap.sh -cmd -quickurl https://www.example.com -quickprogress -quickout zap_report.html
+        zap/zap.sh -cmd -quickurl https://www.example.com -quickprogress -quickout ../zap_report.html
 
       - echo "Checking ZAP results for vulnerabilities..."
       - |
