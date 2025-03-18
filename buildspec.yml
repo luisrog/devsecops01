@@ -31,5 +31,5 @@ phases:
       - echo "Running Snyk security scan..."
       - snyk auth $SNYK_TOKEN
       - snyk test --severity-threshold=critical
-      - snyk monitor
+   
 
