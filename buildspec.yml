@@ -1,20 +1,25 @@
 version: 0.2
 env:
   secrets-manager:
-    TOKEN: dev/codebuild/sonarqube/credentials:tokenForSonar
+    SONAR_TOKEN: dev/codebuild/sonarqube/credentials:tokenForSonar
 phases:
   install:
     runtime-versions:
       java: latest
     commands:
-      - echo "Installing dependencies..."
+      - echo "Installing jq for JSON processing"
       - yum install -y jq
   build:
     commands:
       - echo "Running SonarQube Analysis"
-      - mvn verify sonar:sonar -Dsonar.projectKey=devsecops01 -Dsonar.host.url=http://3.139.145.182:9000 -Dsonar.login=$TOKEN
+      - mvn clean verify sonar:sonar \
+        -Dsonar.projectKey=devsecops01 \
+        -Dsonar.host.url=http://3.139.145.182:9000 \
+        -Dsonar.login=$SONAR_TOKEN
       - sleep 5
       - echo "Checking SonarQube Quality Gate Status"
-      - quality_status=$(curl -s -u $TOKEN: http://3.139.145.182:9000/api/qualitygates/project_status?projectKey=devsecops01 | jq -r '.projectStatus.status')
-      - echo "SonarQube analysis status: $quality_status"
-      - if [[ "$quality_status" == "ERROR" ]]; then exit 1; fi
+      - |
+        quality_status=$(curl -s -u $SONAR_TOKEN: http://3.139.145.182:9000/api/qualitygates/project_status?projectKey=devsecops01 | jq -r '.projectStatus.status')
+        echo "SonarQube analysis status: $quality_status"
+        if [[ "$quality_status" == "ERROR" ]]; then exit 1; fi
+
