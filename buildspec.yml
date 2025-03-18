@@ -34,11 +34,11 @@ phases:
 
       - echo "Running OWASP ZAP security scan..."
       - |
-        wget https://github.com/zaproxy/zaproxy/releases/download/v2.14.0/ZAP_2.14.0_Linux.tar.gz -O zap.tar.gz
+        wget https://github.com/zaproxy/zaproxy/releases/download/v2.16.0/ZAP_2.16.0_Linux.tar.gz -O zap.tar.gz
         tar -xvf zap.tar.gz
-        mv ZAP_2.14.0 zap
+        mv ZAP_2.16.0 zap
         chmod +x zap/zap.sh
-        zap/zap.sh -cmd -quickurl https://www.example.com -quickprogress -quickout zap_report.html 
+        zap/zap.sh -cmd -quickurl https://www.example.com -quickprogress -quickout zap_report.html
 
       - echo "Checking ZAP results for vulnerabilities..."
       - |
@@ -50,4 +50,3 @@ phases:
 artifacts:
   files:
     - zap_report.html
-
