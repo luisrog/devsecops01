@@ -13,3 +13,13 @@ phases:
     commands:
       - echo "Running SonarQube Analysis"
       - mvn clean verify sonar:sonar -Dsonar.projectKey=devsecops01 -Dsonar.host.url=http://3.139.145.182:9000 -Dsonar.login=$SONAR_TOKEN
+      - sleep 10  # Da tiempo a SonarQube para procesar el análisis
+      - echo "Checking SonarQube Quality Gate Status"
+      - |
+        quality_status=$(curl -s -u $SONAR_TOKEN: "http://3.139.145.182:9000/api/qualitygates/project_status?projectKey=devsecops01" | jq -r '.projectStatus.status')
+        echo "SonarQube Quality Gate Status: $quality_status"
+        if [[ "$quality_status" == "ERROR" ]]; then
+          echo "❌ Quality Gate failed. Stopping build..."
+          exit 1
+        fi
+      - echo "✅ Quality Gate passed. Build successful."
